@@ -1,77 +1,65 @@
-const express=require('express');
-const Employee=require('../models/Employee');
-const router=express.Router();
+const express = require('express');
+const Employee = require("../models/Employee");
+const router = express.Router();
 
-router.get("/", (request, response)=>{
+router.get("/", async (req, res) => {
     try {
-        const employees = Employee.find({});
-        response.status(200).json(employees);
-    }catch (error){
-        response.status(500).json({message: error.message});
+        const employees = await Employee.find({});
+        res.status(200).json(employees);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }aa
+});
+
+router.get("/:id", async (req, res) => {
+    try {
+        const employee = await Employee.findById(req.params.id);
+        res.status(200).json(employee);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 });
 
-router.get("/:id", async (request, response)=> {
+router.post("/", async (req, res) => {
     try {
-        const employee = await Employee.findById(request.params.id);
-        response.status(200).json(employee);
-    }
-    catch (error){
-        response.status(500).json({message: error.message});
-    }
-});
+        const { name, email, department, role, salary } = req.body;
 
-router.post("/", async (request, response)=> {
-    try {
-        const {name, email, department, role, salary} = request.body;
-        if (!name){
-            return response.status(400).json({message: "Name is required"});
-        }
-        else if (!email){
-            return response.status(400).json({message: "Email is required"});
-        }
-        else if (!department){
-            return response.status(400).json({message: "Department is required"});
-        }
-        else if (!role){
-            return response.status(400).json({message: "Role is required"});
-        }
-        else if (!salary){
-            return response.status(400).json({message: "Salary is required"});
-        }
-        
-        const newEmployee ={
-            name: request.body.name,
-            email: request.body.email,
-            department: request.body.department,
-            role: request.body.role,
-            salary: request.body.salary
-        };
-        const employee = new Employee(newEmployee);
+        if (!name) return res.status(400).json({ message: "Name is required" });
+        if (!email) return res.status(400).json({ message: "Email is required" });
+        if (!department) return res.status(400).json({ message: "Department is required" });
+        if (!role) return res.status(400).json({ message: "Role is required" });
+        if (!salary) return res.status(400).json({ message: "Salary is required" });
+
+        const employee = new Employee({ name, email, department, role, salary });
         await employee.save();
-        response.status(201).json({message: "Employee created successfully", employee});
-    }
-    catch (error){
-        response.status(500).json({message: error.message});
-    }
-});
 
-router.put("/:id",async (request,response)=>{
-    try {
-        const employee=await Employee.findByIdAndUpdate(request.params.id,request.body,{new:true});
-        response.status(200).json({message:"Employee updated successfully",employee});
+        res.status(201).json({ message: "Employee created successfully", employee });
     } catch (error) {
-        response.status(500).json({message:error.message});
+        res.status(500).json({ message: error.message });
     }
 });
 
-router.delete("/:id",async (request,response)=>{
+router.put("/:id", async (req, res) => {
     try {
-        const employee=await Employee.findByIdAndDelete(request.params.id);
-        response.status(200).json({message:"Employee deleted successfully",employee});
+        const employee = await Employee.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true }
+        );
+
+        res.status(200).json({ message: "Employee updated successfully", employee });
     } catch (error) {
-        response.status(500).json({message:error.message});
+        res.status(500).json({ message: error.message });
     }
 });
 
-module.exports=router;
+router.delete("/:id", async (req, res) => {
+    try {
+        const employee = await Employee.findByIdAndDelete(req.params.id);
+        res.status(200).json({ message: "Employee deleted successfully", employee });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+module.exports = router;
