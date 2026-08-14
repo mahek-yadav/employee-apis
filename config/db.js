@@ -13,4 +13,4 @@ db.on("erroe",()=>{
 });
 
 
-modeule.exports=db;
+module.exports=db;
